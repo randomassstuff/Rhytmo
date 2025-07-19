@@ -1,0 +1,115 @@
+package substates;
+
+class PauseSubState extends ExtendableSubState {
+	var tipTxt:FlxText;
+	var isTweening:Bool = false;
+	var lastString:String = '';
+
+	final pauseOptions:Array<String> = ['resumeTxt', 'restartTxt', 'optionsTxt', 'sMenuTxt', 'mMenuTxt'];
+	var pauseGrp:FlxTypedGroup<FlxText>;
+	var curSelected:Int = 0;
+
+	public function new() {
+		super();
+
+		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.WHITE);
+		bg.alpha = 0.55;
+		add(bg);
+
+		var text:FlxText = new FlxText(0, 0, 0, Localization.get("pauseTxt"), 12);
+		text.setFormat(Paths.font(Localization.getFont()), 64, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		text.screenCenter(X);
+		add(text);
+
+		pauseGrp = new FlxTypedGroup<FlxText>();
+		add(pauseGrp);
+
+		for (i in 0...pauseOptions.length) {
+			var text:FlxText = new FlxText(0, 245 + (i * 65), 0, Localization.get(pauseOptions[i]), 32);
+			text.setFormat(Paths.font(Localization.getFont()), 80, FlxColor.WHITE, FlxTextAlign.CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+			text.screenCenter(X);
+			text.ID = i;
+			pauseGrp.add(text);
+		}
+
+		var bottomPanel:FlxSprite = new FlxSprite(0, FlxG.height - 100).makeGraphic(FlxG.width, 100, 0xFF000000);
+		bottomPanel.alpha = 0.65;
+		add(bottomPanel);
+
+		tipTxt = new FlxText(20, FlxG.height - 80, 1000, "", 22);
+		tipTxt.setFormat(Paths.font('vcr.ttf'), 26, 0xFFffffff, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(tipTxt);
+
+		changeSelection(0, false);
+	}
+
+	var timer:Float = 0;
+
+	override function update(elapsed:Float) {
+		super.update(elapsed);
+
+		tipTxt.screenCenter(X);
+
+		if (isTweening)
+			timer = 0;
+		else if ((timer += elapsed) >= 3)
+			changeText();
+
+		if (Input.justPressed('up') || Input.justPressed('down'))
+			changeSelection(Input.justPressed('up') ? -1 : 1);
+
+		if (Input.justPressed('accept')) {
+			switch (curSelected) {
+				case 0: close();
+				case 1: FlxG.resetState();
+				case 2:
+					ExtendableState.switchState(new options.OptionsState(true));
+					FlxG.sound.playMusic(Paths.music('Basically_Professionally_Musically'), 0.75);
+				case 3:
+					if (PlayState.campaignMode) PlayState.campaignMode = false;
+					ExtendableState.switchState(new SongSelectState());
+					FlxG.sound.playMusic(Paths.music('Basically_Professionally_Musically'), 0.75);
+					PlayState.chartingMode = false;
+				case 4:
+					if (PlayState.campaignMode) PlayState.campaignMode = false;
+					ExtendableState.switchState(new MenuState());
+					FlxG.sound.playMusic(Paths.music('Basically_Professionally_Musically'), 0.75);
+					PlayState.chartingMode = false;
+			}
+		}
+	}
+
+	private function changeSelection(change:Int = 0, ?playSound:Bool = true) {
+		if (playSound)
+			FlxG.sound.play(Paths.sound('scroll'));
+		curSelected = FlxMath.wrap(curSelected + change, 0, pauseOptions.length - 1);
+		pauseGrp.forEach((txt:FlxText) -> txt.color = (txt.ID == curSelected) ? FlxColor.LIME : FlxColor.WHITE);
+	}
+
+	function changeText() {
+		var textArray:Array<String> = Paths.getTextArray(Paths.txt('data/tipText'));
+		var idx:Int = FlxG.random.int(0, textArray.length - 1);
+		var selectedText:String = textArray[idx].replace('--', '\n');
+		if (selectedText == lastString && textArray.length > 1) {
+			for (i in 0...textArray.length) {
+				var tryIdx = FlxG.random.int(0, textArray.length - 1);
+				selectedText = textArray[tryIdx].replace('--', '\n');
+				if (selectedText != lastString) break;
+			}
+		}
+		tipTxt.alpha = 1;
+		isTweening = true;
+		FlxTween.tween(tipTxt, {alpha: 0}, 1, {
+			ease: FlxEase.linear,
+			onComplete: (twn:FlxTween) -> {
+				tipTxt.text = selectedText;
+				lastString = selectedText;
+				tipTxt.alpha = 0;
+				FlxTween.tween(tipTxt, {alpha: 1}, 1, {
+					ease: FlxEase.linear,
+					onComplete: (twn:FlxTween) -> isTweening = false
+				});
+			}
+		});
+	}
+}

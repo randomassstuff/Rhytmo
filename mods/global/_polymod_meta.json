@@ -1,0 +1,8 @@
+{
+	"title": "Global Mod",
+	"description": "Mod that is always enabled.",
+	"author": "None",
+	"api_version": "1.0.5",
+	"mod_version": "1.0.0",
+	"license": "Apache 2.0"
+}
