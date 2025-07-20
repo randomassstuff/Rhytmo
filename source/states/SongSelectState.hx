@@ -1,9 +1,5 @@
 package states;
 
-#if FUTURE_POLYMOD
-import polymod.Polymod;
-#end
-
 typedef BasicData = {
 	var songs:Array<SongArray>;
 }
@@ -53,28 +49,7 @@ class SongSelectState extends ExtendableState {
 
 		persistentUpdate = true;
 
-		var baseData = TJSON.parse(Paths.getTextFromFile('data/songs.json'));
-		var allSongs:Array<SongArray> = baseData.songs;
-
-		#if FUTURE_POLYMOD
-		var modFS = Polymod.getFileSystem();
-		if (modFS.exists('data/songs.json')) {
-			var modData = TJSON.parse(modFS.getFileContent('data/songs.json'));
-			if (modData != null && Reflect.hasField(modData, "songs")) {
-				var modSongs:Array<Dynamic> = cast modData.songs;
-				for (song in modSongs) {
-					allSongs.push({
-						name: song.name,
-						diff: song.diff
-					});
-				}
-			}
-		}
-		#end
-
-		songListData = {
-			songs: allSongs
-		};
+		songListData = TJSON.parse(Paths.getTextFromFile('data/songs.json'));
 
 		var bg:FlxSprite = new GameSprite().loadGraphic(Paths.image('menu/backgrounds/selector_bg'));
 		add(bg);
@@ -109,7 +84,7 @@ class SongSelectState extends ExtendableState {
 		add(bottomPanel);
 
 		panelTxt = new FlxText(bottomPanel.x, bottomPanel.y + 8, FlxG.width, "", 32);
-		panelTxt.setFormat(Paths.font(Localization.getFont()), 40, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		panelTxt.setFormat(Paths.font('vcr.ttf'), 40, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		panelTxt.scrollFactor.set();
 		panelTxt.screenCenter(X);
 		add(panelTxt);
@@ -117,17 +92,17 @@ class SongSelectState extends ExtendableState {
 		tinyTxt = new FlxText(panelTxt.x, panelTxt.y + 50, FlxG.width, Localization.get("tinyGuide"), 22);
 		tinyTxt.screenCenter(X);
 		tinyTxt.scrollFactor.set();
-		tinyTxt.setFormat(Paths.font(Localization.getFont()), 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		tinyTxt.setFormat(Paths.font('vcr.ttf'), 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(tinyTxt);
 
 		titleTxt = new FlxText(0, 0, FlxG.width, "", 32);
-		titleTxt.setFormat(Paths.font(Localization.getFont()), 70, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		titleTxt.setFormat(Paths.font('vcr.ttf'), 70, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		titleTxt.scrollFactor.set();
 		titleTxt.screenCenter(X);
 		add(titleTxt);
 
 		var arrows:FlxSprite = new GameSprite().loadGraphic(Paths.image('menu/arrows'));
-		arrows.screenCenter();
+		arrows.screenCenter(XY);
 		add(arrows);
 
 		changeSelection(0, false);

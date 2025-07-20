@@ -3,8 +3,6 @@ package backend;
 #if openfl
 import openfl.system.Capabilities;
 #end
-import hx_arabic_shaper.ArabicReshaper;
-import hx_arabic_shaper.bidi.UBA;
 
 /**
  * A simple localization system.
@@ -16,8 +14,6 @@ class Localization {
 
 	private static var data:Map<String, Dynamic>;
 	private static var currentLanguage:String;
-
-	public static var DEFAULT_FONT:String = "vcr";
 
 	public static var DEFAULT_LANGUAGE:String = "en";
 	public static var directory:String = DEFAULT_DIR;
@@ -37,65 +33,57 @@ class Localization {
 
 		var path:String = Paths.txt("languages/languagesList");
 		if (Paths.exists(path)) {
-			for (language in Paths.getText(path).split('\n')) {
-				var langCode:String = language.trim().split(':')[1];
-				data.set(langCode, loadLanguageData(langCode));
+			var listContent:String = Paths.getText(path);
+			var languages:Array<String> = listContent.split('\n');
+
+			for (language in languages) {
+				var languageData:Dynamic = loadLanguageData(language.trim());
+				data.set(language, languageData);
 			}
 		}
-
-		var config = ArabicReshaper.getDefaultConfig();
-		config.delete_harakat = true;
-		ArabicReshaper.init(config);
 	}
 
 	private static function loadLanguageData(language:String):Dynamic {
+		var jsonContent:String;
+
 		try {
-			return TJSON.parse(Paths.getText(path(language)));
+			jsonContent = Paths.getText(path(language));
 		} catch (e:Dynamic) {
 			trace('language file not found: $e');
-			return TJSON.parse(Paths.getText(path(DEFAULT_LANGUAGE)));
+			jsonContent = Paths.getText(path(DEFAULT_LANGUAGE));
 		}
+
+		return TJSON.parse(jsonContent);
 	}
 
 	public static function switchLanguage(newLanguage:String) {
 		if (newLanguage == currentLanguage)
 			return;
 
+		var languageData:Dynamic = loadLanguageData(newLanguage);
+
 		currentLanguage = newLanguage;
-		data.set(newLanguage, loadLanguageData(newLanguage));
+		data.set(newLanguage, languageData);
 		trace('Language changed to $currentLanguage');
 	}
 
 	public static function get(key:String, ?language:String):String {
 		var targetLanguage:String = language != null ? language : currentLanguage;
 		var languageData = data.get(targetLanguage);
+		final field:String = Reflect.field(languageData, key);
 
-		if (data != null && data.exists(targetLanguage) && languageData != null && Reflect.hasField(languageData, key)) {
-			var field:String = Reflect.field(languageData, key);
-			return (targetLanguage == "ar") ? shapeArabicText(field) : field;
-		}
+		if (data != null && data.exists(targetLanguage))
+			if (languageData != null && Reflect.hasField(languageData, key))
+				return field;
 
-		return 'missing key: $key';
+		return field != null ? field : 'missing key: $key';
 	}
 
-	public static function getFont():String {
-		if (data != null && data.exists(currentLanguage)) {
-			var languageData = data.get(currentLanguage);
-			return Reflect.hasField(languageData, "customFont") ? Reflect.field(languageData, "customFont") : DEFAULT_FONT;
-		}
-
-		return DEFAULT_FONT;
+	private static function path(language:String) {
+		var localDir = Path.join([directory, language + ".json"]);
+		var path:String = Paths.file(localDir);
+		return path;
 	}
-
-	private static function path(language:String)
-		return Paths.file(Path.join([directory, language + ".json"]));
-
-	// for arabic text
-	public static function shapeArabicText(text:String):String
-		return UBA.display(ArabicReshaper.reshape(text));
-
-	public static function dispose()
-		ArabicReshaper.dispose();
 }
 
 class Locale {

@@ -70,7 +70,7 @@ class ModsState extends ExtendableState {
 			ModHandler.reload();
 			mustResetMusic = true;
 			ExtendableState.switchState(new MenuState());
-		} else if (Input.justPressed('accept') && ModHandler.trackedMods[curSelected].id != "global") {
+		} else if (Input.justPressed('accept')) {
 			if (!FlxG.save.data.disabledMods.contains(ModHandler.trackedMods[curSelected].id))
 				FlxG.save.data.disabledMods.push(ModHandler.trackedMods[curSelected].id);
 			else

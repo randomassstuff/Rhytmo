@@ -136,9 +136,9 @@ class ChartingState extends ExtendableState {
 					func: () -> {
 						try {
 							var chart:String = Json.stringify(song);
-							File.saveContent(Paths.json('songs/${Paths.formatToSongPath(song.song)}/chart'), chart);
-							trace("chart saved!\nsaved path: " + Paths.json('songs/${Paths.formatToSongPath(song.song)}/chart'));
-							var savedText:FlxText = new FlxText(0, 0, 0, "Chart saved! Saved path:\n" + Paths.json('songs/${Paths.formatToSongPath(song.song)}/chart'), 12);
+							File.saveContent(Paths.chart(Paths.formatToSongPath(song.song)), chart);
+							trace("chart saved!\nsaved path: " + Paths.chart(Paths.formatToSongPath(song.song)));
+							var savedText:FlxText = new FlxText(0, 0, 0, "Chart saved! Saved path:\n" + Paths.chart(Paths.formatToSongPath(song.song)), 12);
 							savedText.setFormat(Paths.font('vcr.ttf'), 18, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 							savedText.screenCenter();
 							add(savedText);
@@ -667,7 +667,7 @@ class LoadSongSubState extends ExtendableSubState {
 		input.setFormat(Paths.font('vcr.ttf'), 96, FlxColor.WHITE, FlxTextAlign.CENTER);
 		input.alignment = CENTER;
 		input.setBorderStyle(OUTLINE, 0xFF000000, 5, 1);
-		input.screenCenter();
+		input.screenCenter(XY);
 		input.y += 50;
 		input.backgroundColor = 0xFF000000;
 		input.lines = 1;
@@ -805,7 +805,7 @@ class HelpSubState extends ExtendableSubState {
 			"LEFT/RIGHT - Next/Previous Section\nLMB - Add/Remove Note\nCTRL + LMB - Select Note\nE/Q - Increase/Decrease Note Sustain\nSHIFT - Disable Chart Snapping\nSPACE - Play/Pause Music\nENTER - Playtest Chart",
 			32);
 		text.setFormat(Paths.font('vcr.ttf'), 36, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		text.screenCenter();
+		text.screenCenter(XY);
 		add(text);
 	}
 

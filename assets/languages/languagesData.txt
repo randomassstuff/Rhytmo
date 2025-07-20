@@ -1,0 +1,10 @@
+English (US):en
+Japanese (JP): jp
+Indonesian (ID): id
+Korean (KO): ko
+Russian (RU): ru
+Italian (IT): it
+Arabic (AR): ar
+Chinese (ZH): zh 
+Español (España):es
+Tiếng Việt (VN):vn

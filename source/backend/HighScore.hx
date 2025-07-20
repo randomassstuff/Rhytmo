@@ -5,7 +5,10 @@ class HighScore {
 	public static var campaignScoreSave:Int = 0;
 
 	public static function saveScore(song:String, score:Int = 0):Void {
-		if (!songScores.exists(song) || songScores.get(song) < score)
+		if (songScores.exists(song)) {
+			if (songScores.get(song) < score)
+				setScore(song, score);
+		} else
 			setScore(song, score);
 	}
 
@@ -16,7 +19,10 @@ class HighScore {
 	}
 
 	public static function getScore(song:String):Int {
-		return (songScores.exists(song)) ? songScores.get(song) : 0;
+		if (!songScores.exists(song))
+			setScore(song, 0);
+
+		return songScores.get(song);
 	}
 
 	public static function resetSong(song:String):Void {
@@ -39,6 +45,7 @@ class HighScore {
 	public static function load():Void {
 		if (FlxG.save.data.songScores != null)
 			songScores = FlxG.save.data.songScores;
+
 		if (FlxG.save.data.campaignScoreSave != null)
 			campaignScoreSave = FlxG.save.data.campaignScoreSave;
 	}

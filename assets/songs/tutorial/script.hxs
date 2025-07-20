@@ -8,7 +8,7 @@ var txt:FlxText;
 
 function create() {
 	txt = new FlxText(0, 0, 0, "Hit the notes to the beat of the song!", 48).screenCenter();
-	game.add(txt);
+	PlayState.instance.add(txt);
 }
 
 function beatHit(curBeat:Int) {

@@ -31,13 +31,8 @@ class ScriptedSubState extends ExtendableSubState {
 			script = new HScript(path, false);
 			script.execute(path, false);
 
-			scriptSet('substate', this);
-			scriptSet('add', this.add);
-			scriptSet('insert', this.insert);
-			scriptSet('remove', this.remove);
-			scriptSet('members', this.members);
-			scriptSet('multiAdd', this.multiAdd);
-			scriptSet('multiRemove', this.multiRemove);
+			scriptSet('multiAdd', multiAdd);
+			scriptSet('multiRemove', multiRemove);
 		} catch (e:Dynamic) {
 			script = null;
 			trace('Error while getting script: $path!\n$e');

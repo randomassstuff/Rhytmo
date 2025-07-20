@@ -1,11 +1,16 @@
 package backend;
 
+#if cpp
+import cpp.vm.Gc;
+#elseif hl
+import hl.Gc;
+#elseif neko
+import neko.vm.Gc;
+#end
 import flixel.graphics.FlxGraphic;
+import flixel.system.FlxAssets;
 
 using haxe.io.Path;
-
-typedef FileAssets = #if sys FileSystem; #else Assets; #end
-typedef GarbageCollect = #if cpp cpp.vm.Gc; #elseif hl hl.Gc; #elseif neko neko.vm.Gc; #end
 
 enum SpriteSheetType {
 	ASEPRITE;
@@ -33,19 +38,19 @@ class Paths {
 
 	@:noCompletion private inline static function _gc(major:Bool) {
 		#if (cpp || neko)
-		GarbageCollect.run(major);
+		Gc.run(major);
 		#elseif hl
-		GarbageCollect.major();
+		Gc.major();
 		#end
 	}
 
 	@:noCompletion public inline static function compress() {
 		#if cpp
-		GarbageCollect.compact();
+		Gc.compact();
 		#elseif hl
-		GarbageCollect.major();
+		Gc.major();
 		#elseif neko
-		GarbageCollect.run(true);
+		Gc.run(true);
 		#end
 	}
 
@@ -61,21 +66,24 @@ class Paths {
 				currentTrackedAssets.remove(key);
 			}
 		}
+
 		compress();
 		gc(true);
 	}
 
 	@:access(flixel.system.frontEnds.BitmapFrontEnd._cache)
 	public static function clearStoredMemory() {
-		for (key in FlxG.bitmap._cache.keys())
+		for (key in FlxG.bitmap._cache.keys()) {
 			if (!currentTrackedAssets.exists(key))
 				destroyGraphic(FlxG.bitmap.get(key));
+		}
 
-		for (key => asset in currentTrackedSounds)
+		for (key => asset in currentTrackedSounds) {
 			if (!localTrackedAssets.contains(key) && asset != null) {
 				Assets.cache.clear(key);
 				currentTrackedSounds.remove(key);
 			}
+		}
 
 		localTrackedAssets = [];
 		Assets.cache.clear("songs");
@@ -101,6 +109,7 @@ class Paths {
 		if (obj != null) {
 			obj.dispose();
 			obj.disposeImage();
+			obj = null;
 			trackedBitmaps.remove(id);
 		}
 	}
@@ -113,11 +122,17 @@ class Paths {
 	inline static public function exists(asset:String)
 		return FileAssets.exists(asset);
 
-	static public function getPath(folder:Null<String>, file:String)
-		return (folder == null ? DEFAULT_FOLDER : folder) + '/' + file;
+	static public function getPath(folder:Null<String>, file:String) {
+		if (folder == null)
+			folder = DEFAULT_FOLDER;
+		return folder + '/' + file;
+	}
 
-	static public function file(file:String, folder:String = DEFAULT_FOLDER)
-		return #if sys FileSystem.exists(folder) && #end (folder != null && folder != DEFAULT_FOLDER) ? getPath(folder, file) : getPath(null, file);
+	static public function file(file:String, folder:String = DEFAULT_FOLDER) {
+		if (#if sys FileSystem.exists(folder) && #end (folder != null && folder != DEFAULT_FOLDER))
+			return getPath(folder, file);
+		return getPath(null, file);
+	}
 
 	inline public static function getTextArray(path:String):Array<String>
 		return exists(path) ? [for (i in getText(path).trim().split('\n')) i.trim()] : [];
@@ -139,8 +154,10 @@ class Paths {
 
 	inline static public function script(key:String) {
 		var extension:String = '.hxs';
+
 		for (ext in HSCRIPT_EXT)
 			extension = (exists(file(key + ext))) ? ext : extension;
+
 		return file(key + extension);
 	}
 
@@ -165,11 +182,19 @@ class Paths {
 	inline static public function formatToSongPath(path:String)
 		return path.toLowerCase().replace(' ', '-');
 
+	inline static public function chart(key:String)
+		return file('songs/$key/chart.json');
+
 	inline static public function font(key:String) {
 		var path:String = file('fonts/$key');
-		for (i in ["ttf", "otf"])
-			if (path.extension() == '' && exists(path.withExtension(i)))
-				path = path.withExtension(i);
+
+		if (path.extension() == '') {
+			if (exists(path.withExtension("ttf")))
+				path = path.withExtension("ttf");
+			else if (exists(path.withExtension("otf")))
+				path = path.withExtension("otf");
+		}
+
 		return path;
 	}
 
@@ -177,14 +202,22 @@ class Paths {
 		return returnGraphic('images/$key', cache);
 
 	public static inline function spritesheet(key:String, ?cache:Bool = true, ?type:SpriteSheetType):FlxAtlasFrames {
-		type = type ?? SPARROW;
+		if (type == null)
+			type = SPARROW;
+
 		return switch (type) {
-			case ASEPRITE: FlxAtlasFrames.fromAseprite(image(key, cache), json('images/$key'));
-			case PACKER: FlxAtlasFrames.fromSpriteSheetPacker(image(key, cache), txt('images/$key'));
-			case SPARROW: FlxAtlasFrames.fromSparrow(image(key, cache), xml('images/$key'));
-			case TEXTURE_PATCHER_JSON: FlxAtlasFrames.fromTexturePackerJson(image(key, cache), json('images/$key'));
-			case TEXTURE_PATCHER_XML: FlxAtlasFrames.fromTexturePackerXml(image(key, cache), xml('images/$key'));
-			default: FlxAtlasFrames.fromSparrow(image('errorSparrow', cache), xml('images/errorSparrow'));
+			case ASEPRITE:
+				FlxAtlasFrames.fromAseprite(image(key, cache), json('images/$key'));
+			case PACKER:
+				FlxAtlasFrames.fromSpriteSheetPacker(image(key, cache), txt('images/$key'));
+			case SPARROW:
+				FlxAtlasFrames.fromSparrow(image(key, cache), xml('images/$key'));
+			case TEXTURE_PATCHER_JSON:
+				FlxAtlasFrames.fromTexturePackerJson(image(key, cache), json('images/$key'));
+			case TEXTURE_PATCHER_XML:
+				FlxAtlasFrames.fromTexturePackerXml(image(key, cache), xml('images/$key'));
+			default:
+				FlxAtlasFrames.fromSparrow(image('errorSparrow', cache), xml('images/errorSparrow'));
 		}
 	}
 
@@ -196,7 +229,8 @@ class Paths {
 				graphic.persist = true;
 				currentTrackedAssets.set(path, graphic);
 			}
-			pushTracked(path);
+
+			localTrackedAssets.push(path);
 			return currentTrackedAssets.get(path);
 		}
 
@@ -206,16 +240,19 @@ class Paths {
 
 	public static function returnSound(key:String, ?cache:Bool = true, ?beepOnNull:Bool = true):Sound {
 		for (i in SOUND_EXT) {
-			var path:String = file(key + i);
 			if (Assets.exists(file(key + i), SOUND)) {
+				var path:String = file(key + i);
 				if (!currentTrackedSounds.exists(path))
 					currentTrackedSounds.set(path, Assets.getSound(path, cache));
-				pushTracked(path);
+
+				localTrackedAssets.push(path);
 				return currentTrackedSounds.get(path);
 			}
 		}
 
 		trace('oops! sound $key returned null');
-		return (beepOnNull) ? flixel.system.FlxAssets.getSound('flixel/sounds/beep') : null;
+		return (beepOnNull) ? FlxAssets.getSound('flixel/sounds/beep') : null;
 	}
 }
+
+typedef FileAssets = #if sys FileSystem; #else Assets; #end

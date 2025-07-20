@@ -13,8 +13,10 @@ class TitleState extends ExtendableState {
 		hueShader = new HueDisplacer();
 
 		#if FUTURE_POLYMOD
-		if (ModHandler.trackedMods.length > 0)
-			Main.toast.create('Mods Installed:', 0xFFFFFF00, ModHandler.getModIDs().join('\n'));
+		if (ModHandler.trackedMods.length > 0) {
+			var installedMods:Array<String> = ModHandler.getModIDs();
+			Main.toast.create('Mods Installed:', 0xFFFFFF00, installedMods.join('\n'));
+		}
 		#end
 
 		persistentUpdate = persistentDraw = true;
@@ -50,7 +52,7 @@ class TitleState extends ExtendableState {
 		}, 0);
 
 		var text:FlxText = new FlxText(0, logo.y + 400, 0, Localization.get("pressEnter"), 12);
-		text.setFormat(Paths.font(Localization.getFont()), 48, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		text.setFormat(Paths.font('vcr.ttf'), 48, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		text.screenCenter(X);
 		add(text);
 	}

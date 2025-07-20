@@ -3,7 +3,7 @@
 
 	<!-- [ Application Settings ] -->
 
-	<app title="Rhythmo" file="Rhythmo" main="Main" version="1.1.0-pre" package="com.joalor64.rhythmo" company="Joalor64" />
+	<app title="Rhythmo" file="Rhythmo" main="Main" version="1.0.0" package="com.joalor64.rhythmo" company="Joalor64" />
 
 	<!-- [ Window Settings ] -->
 
@@ -49,12 +49,10 @@
 	<haxelib name="polymod" if="FUTURE_POLYMOD" />
 	<haxelib name="hxdiscord_rpc" if="FUTURE_DISCORD_RPC" />
 	<haxelib name="hxcpp-debug-server" if="desktop debug" />
-	<haxelib name="hx_arabic_shaper" />
 
 	<!-- [ Defines ] -->
 
 	<haxedef name="FLX_RECORD" />
-	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
 	<haxedef name="FLX_NO_DEBUG" unless="debug" />
 	<haxedef name="NAPE_RELEASE_BUILD" unless="debug" />
 	<haxedef name="HXCPP_CHECK_POINTER" if="release" />
@@ -95,7 +93,8 @@
 	<target id="haxe" tool="linker" if="macos">
 		<lib name="/lib64/libX11.a" if="HXCPP_M64" /> <!-- mac support -->
 	</target>
-	
-	<haxedef name="NO_PRECOMPILED_HEADERS" if="linux" />
+
+	<!-- For Lua -->
+	<haxedef name="NO_PRECOMPILED_HEADERS"/>
 
 </project>

@@ -15,13 +15,13 @@ class PromptSubState extends FlxSubState {
 		var width:Float = FlxG.width * 0.75;
 		var height:Float = FlxG.height * 0.5;
 
-		var box:RoundedSprite = new RoundedSprite(0, 0, Std.int(width), Std.int(height), FlxColor.BLACK);
+		var box:FlxSprite = new FlxSprite().makeGraphic(Std.int(width), Std.int(height), 0xFF000000);
 		box.scrollFactor.set();
 		box.screenCenter();
 		add(box);
 
 		var questionTxt:FlxText = new FlxText(box.x, box.y + 20, width, question);
-		questionTxt.setFormat(Paths.font(Localization.getFont()), 50, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		questionTxt.setFormat(Paths.font('vcr.ttf'), 50, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		questionTxt.scrollFactor.set();
 		add(questionTxt);
 
@@ -30,11 +30,10 @@ class PromptSubState extends FlxSubState {
 				callbackYes();
 			close();
 		});
-		btnYes.scale.set(2, 2);
-		btnYes.scrollFactor.set();
-		btnYes.label.setFormat(Paths.font(Localization.getFont()), 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		btnYes.label.screenCenter();
 		btnYes.screenCenter(X);
+		btnYes.scale.set(2, 2);
+		btnYes.label.scale.set(2, 2);
+		btnYes.label.screenCenter(XY);
 		add(btnYes);
 
 		var btnNo:FlxButton = new FlxButton(0, btnYes.y + 50, Localization.get("no"), () -> {
@@ -42,11 +41,10 @@ class PromptSubState extends FlxSubState {
 				callbackNo();
 			close();
 		});
-		btnNo.scale.set(2, 2);
-		btnNo.scrollFactor.set();
-		btnNo.label.setFormat(Paths.font(Localization.getFont()), 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		btnNo.label.screenCenter();
 		btnNo.screenCenter(X);
+		btnNo.scale.set(2, 2);
+		btnNo.label.scale.set(2, 2);
+		btnNo.label.screenCenter(XY);
 		add(btnNo);
 	}
 }

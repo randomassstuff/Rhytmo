@@ -1,30 +1,30 @@
-<p align="center">
-  <img src="./assets/images/menu/title/logo.png" width="900">
-</p>
+![](./assets/images/menu/title/logo.png)
 
-<p align="center">
-  <a href="https://github.com/JoaTH-Team/Rhythmo-SC/actions/workflows/main.yml">
-    <img src="https://github.com/JoaTH-Team/Rhythmo-SC/actions/workflows/main.yml/badge.svg">
-  </a>
-  <img src="https://img.shields.io/github/repo-size/JoaTH-Team/Rhythmo-SC">
-  <img src="https://img.shields.io/github/issues/JoaTH-Team/Rhythmo-SC">
-  <img src="https://img.shields.io/badge/balls-in_your_jaws-green">
-</p>
+[![Build](https://github.com/JoaTH-Team/Rhythmo-SC/actions/workflows/main.yml/badge.svg)](https://github.com/JoaTH-Team/Rhythmo-SC/actions/workflows/main.yml)
+![](https://img.shields.io/github/repo-size/JoaTH-Team/Rhythmo-SC)
+![](https://img.shields.io/github/issues/JoaTH-Team/Rhythmo-SC)
+![](https://img.shields.io/badge/balls-in_your_jaws-green)
 
----
+A random rhythm game made from scratch. <br>
+Mostly based on [Friday Night Funkin'](https://github.com/FunkinCrew/Funkin/), go check it out!
 
-Rhythmo is a simple singleplayer rhythm game made from scratch. Heavily based on [Friday Night Funkin'](https://github.com/FunkinCrew/Funkin/), go check it out!
+* [Download on itch.io!](https://joalor64.itch.io/rhythmo)
 
-<p align="center"><a href="https://joalor64.itch.io/rhythmo"><img src="https://static.itch.io/images/badge-color.svg?sanitize=true" width="40%"></a></p>
+> [!TIP]
+> The latest builds of the game can be found in the [Actions](https://github.com/JoaTH-Team/Rhythmo-SC/actions) tab.
 
-* You can also download dev builds in the [Actions](https://github.com/JoaTH-Team/Rhythmo-SC/actions) tab.
+## Compiling
+**USE THE LINKS ABOVE IF YOU JUST WANT TO PLAY THE GAME!**
 
----
+If you want to compile the game, follow the [compilation guide](https://github.com/JoaTH-Team/Rhythmo-SC/wiki/Building-the-Game).
+
+## Modding
+Feel free to learn how to mod the game by reading the [documentation](https://github.com/JoaTH-Team/Rhythmo-SC/wiki) and guides to modding.
 
 ## Features
-* Modding System (via [Polymod](https://github.com/larsiusprime/polymod/))
-* Softcoded Song & Credits Menu
-* Scripting System (HScript & Lua)
+* Modding System (using [Polymod](https://github.com/larsiusprime/polymod/))
+* Softcoded Song / Credits Menu
+* Scripting System / Scripted States
 * Discord Rich Presence
 * RGB Note Coloring
 * Language Translations
@@ -35,21 +35,12 @@ Rhythmo is a simple singleplayer rhythm game made from scratch. Heavily based on
 
 Additionally, you can check out the planned features in the [To-Do List](/TODO.md).
 
-## Compiling
-> **USE THE LINKS ABOVE IF YOU JUST WANT TO PLAY THE GAME!**
-
-If you want to build the game yourself, follow the [compilation guide](https://github.com/JoaTH-Team/Rhythmo-SC/wiki/Building-the-Game).
-
-## Modding
-If you want to add your own content, feel free to learn how to mod the game by reading the [documentation](https://github.com/JoaTH-Team/Rhythmo-SC/wiki) and guides to modding.
-
 ## Credits
-### Main Team (& Contributors)
+### Main Team
 * Joalor64 - Creator / Main Programmer / Composer / Artist
 * Huy1234Th - Additional Programmer / Vietnamese Translation / Lua Code
 * Moxie - Additional Programmer
-* NeoDev - Additional Translations
-* Santiago - Portuguese (Brazil) Translation
+* BF667 - Fork programers
 
 ### Special Thanks
-* [freesound.org](https://freesound.org/) - SFX
+* freesound.org - SFX

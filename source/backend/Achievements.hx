@@ -25,46 +25,58 @@ class Achievements {
 		FlxG.save.flush();
 
 		var path:String = Paths.txt('achievements/achList');
-		try
+		try {
 			if (Paths.exists(path)) {
-				for (achievement in Paths.getText(path).split('\n')) {
+				var listContent:String = Paths.getText(path);
+				var achievementsFound:Array<String> = listContent.split('\n');
+
+				for (achievement in achievementsFound) {
 					var achievementName = achievement.trim();
+
 					if (achievementName != "") {
 						achievements.push(achievementName);
 						try {
 							TJSON.parse(Paths.getText(Paths.json('achievements/$achievementName')));
 							trace("Achievement '" + achievement + "' loaded");
-						} catch (e:Dynamic)
+						} catch (e:Dynamic) {
 							trace('Error loading achievement: $e');
+						}
 					}
 				}
-			} catch (e:Dynamic)
+			}
+		} catch (e:Dynamic) {
 			trace(e);
+		}
 	}
 
 	public static function unlock(ach:String, stats:AchievementStats, ?onFinish:Void->Void) {
 		if (!isUnlocked(ach)) {
 			showAchievement(ach, onFinish);
+
 			achievementsMap.set(ach, true);
 			achievementStatsMap.set(ach, stats);
 			FlxG.save.data.achievementsMap = achievementsMap;
 			FlxG.save.data.achievementStatsMap = achievementStatsMap;
 			FlxG.save.flush();
+
 			trace('achievement earned: $ach!\nmore info:\n $stats');
 		}
 	}
 
-	public static function isUnlocked(ach:String):Bool
+	public static function isUnlocked(ach:String):Bool {
 		return achievementsMap.exists(ach) && achievementsMap.get(ach);
+	}
 
-	public static function getStats(ach:String):AchievementStats
-		return achievementStatsMap.exists(ach) ? achievementStatsMap.get(ach) : createStat();
+	public static function getStats(ach:String):AchievementStats {
+		return if (achievementStatsMap.exists(ach)) achievementStatsMap.get(ach); else createStat();
+	}
 
 	public static function createStat(?date:Date, ?song:String) {
 		var stat:AchievementStats = {
 			date: date,
 			song: song
 		};
+
 		return fixStat(stat);
 	}
 
@@ -73,6 +85,7 @@ class Achievements {
 			stat.date = Date.now();
 		if (stat.song == null)
 			stat.song = 'None';
+
 		return stat;
 	}
 
@@ -83,12 +96,14 @@ class Achievements {
 			FlxG.save.data.achievementsMap = achievementsMap;
 			FlxG.save.data.achievementStatsMap = achievementStatsMap;
 			FlxG.save.flush();
+
 			trace('achievement $ach removed!');
 		}
 	}
 
 	public static function showAchievement(ach:String, ?onFinish:Void->Void) {
 		var sprGroup:FlxSpriteGroup = new FlxSpriteGroup();
+
 		var coolAchieve:AchievementData = cast TJSON.parse(File.getContent(Paths.json('achievements/$ach')));
 
 		var achBG:FlxSprite = new FlxSprite(60, 50).makeGraphic(420, 120, FlxColor.BLACK);
@@ -117,9 +132,14 @@ class Achievements {
 
 		var where = FlxG.state.subState != null ? FlxG.state.subState : FlxG.state;
 		where.add(sprGroup);
+
 		FlxG.sound.play(Paths.sound('start'));
 
-		FlxTween.tween(flash, {alpha: 0}, 0.65, {onComplete: (twn:FlxTween) -> sprGroup.remove(flash)});
+		FlxTween.tween(flash, {alpha: 0}, 0.65, {
+			onComplete: (twn:FlxTween) -> {
+				sprGroup.remove(flash);
+			}
+		});
 
 		new FlxTimer().start(2.5, (tmr:FlxTimer) -> {
 			FlxTween.tween(sprGroup, {alpha: 0}, 1, {

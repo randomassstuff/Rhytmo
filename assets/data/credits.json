@@ -10,7 +10,6 @@
             "iconData": ["joalor64", 0, 0],
             "textData": ["Main Creator/Programmer of Rhythmo, Artist, Composer", "I do stuff."],
             "urlData": [
-                ["Website", "https://joalor64gh.github.io/"],
                 ["Bluesky", "https://bsky.app/profile/joalor64.bsky.social/"],
                 ["Discord", "https://discordapp.com/users/584516163296559117/"],
                 ["GitHub", "https://github.com/Joalor64GH/"],
@@ -31,7 +30,7 @@
             "colors": [255, 237, 217]
         },
         {
-            "name": "Huy1234th",
+            "name": "huy1234th",
             "iconData": ["huy1234th", 0, 0],
             "textData": ["Additional Programmer, Vietnamese Translation, Lua Code", "I like haxe."],
             "urlData": [
@@ -41,24 +40,16 @@
             "colors": [26, 184, 28]
         },
         {
+
             "name": "NeoDev",
             "iconData": ["NeoDev", 0, 0],
             "textData": ["Additional Programmer, Adding Other language", "I like python."],
             "urlData": [
                 ["Discord", "https://discord.com/user/1314204512814235689"],
-                ["GitHub", "https://github.com/TheNeodev"],
+                ["GitHub", "https://github.com/TheNeodev"]
                 ["YT", " https://youtube.com/@kezeru-c"]
             ],
-            "colors": [0, 255, 255]
+            "colors": [0, 210, 230]
         },
-        {
-            "name": "Santiago",
-            "iconData": ["santiago", 0, 0],
-            "textData": ["Portuguese (Brazil) translation", "i love haxe."],
-            "urlData": [
-                ["GitHub", "https://github.com/SantiagoCalebe"]
-            ],
-            "colors": [162, 32, 240]
-        }
     ]
 }

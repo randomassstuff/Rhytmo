@@ -1,11 +1,10 @@
-English (US):en
-Español (ES):es
-Italiano (IT):it
-Português (BR):pt-br
-Bahasa Indonesia (ID):id
-Tiếng Việt (VN):vn
-Русский (RU):ru
-中文 (ZH):zh:wdxl
-日本語 (JP):jp:kyokasho
-한국어 (KO):ko:jua
-العربية (AR):ar:amiri
+en
+jp
+id
+ko
+ru
+it
+ar
+zh
+es
+vn

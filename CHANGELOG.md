@@ -4,43 +4,6 @@ All notable changes will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [V1.1.0-pre] - 2025-07-05
-The new content update we've been working on is here! <br>
-Well, at least the pre-release is. <br>
-Keep that in mind, as there may be some placeholder assets!
-
-### Additions
-* New Mode: Campaign Mode!
-  * Enter in the songs you want to play, and see what score you get!
-* New Achievement: Speed Demon!
-  * Use the maximum note speed on any song!
-* Lua Scripting Support
-* Discord Rich Presence
-* More Languages (PR by [NeoDev](https://github.com/JoaTH-Team/Rhythmo-SC/pull/15))
-  * Italiano (IT)
-  * Bahasa Indonesia (ID)
-  * Русский (RU)
-  * 中文 (ZH)
-  * 日本語 (JP)
-  * 한국어 (KO)
-  * العربية (AR)
-    * With this, also comes custom font support for languages!
-* Custom Noteskins/Note Splashes Support
-* Sustain Notes
-* Auto Updater (Made by [maybekoi](https://github.com/maybekoi))
-* Global Mods Folder
-* Animated Mod Icon Support
-
-### Changes
-* HScript Improvements
-* Improved Chart Editor
-* Finished Chart for Hexes and Frostbite
-* Reorganized Assets
-* Optimized Code
-
-### Fixes
-* Fixed Scripted State and Substate Switching
-
 ## [V1.0.0] - 2025-03-01
 Initial release build!
 

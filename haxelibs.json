@@ -39,15 +39,21 @@
     {
       "name": "funkin.vis",
       "type": "git",
-      "ref": "main",
+      "dir": null,
+      "ref": "1966f8fbbbc509ed90d4b520f3c49c084fc92fd6",
       "url": "https://github.com/FunkinCrew/funkVis"
     },
     {
       "name": "grig.audio",
       "type": "git",
       "dir": "src",
-      "ref": "57f5d47f2533fd0c3dcd025a86cb86c0dfa0b6d2",
-      "url": "https://gitlab.com/haxe-grig/grig.audio.git"
+      "ref": "162f924bdde427fc84af5b51961d2faef51f6955",
+      "url": "https://github.com/Snirozu/grig.audio"
+    },
+    {
+      "name": "tink_core",
+      "type": "haxelib",
+      "version": "2.1.1"
     },
     {
       "name": "polymod",
@@ -82,10 +88,6 @@
       "type": "git",
       "ref": "master",
       "url": "https://github.com/superpowers04/linc_luajit"
-    },
-    {
-      "name": "hx_arabic_shaper",
-      "type": "haxelib"
     }
   ]
 }

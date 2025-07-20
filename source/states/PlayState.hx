@@ -145,16 +145,18 @@ class PlayState extends ExtendableState {
 		for (folder in foldersToCheck) {
 			if (FileSystem.exists(folder) && FileSystem.isDirectory(folder)) {
 				for (file in FileSystem.readDirectory(folder)) {
-					if (Paths.validScriptType(file))
+					if (Paths.validScriptType(file)) {
 						scriptArray.push(new HScript(folder + file));
-					if (file.endsWith('.lua'))
+					}
+					if (file.endsWith('.lua')) {
 						luaArray.push(new LuaScript(folder + file));
+					}
 				}
 			}
 		}
 
 		scoreTxt = new FlxText(0, (FlxG.height * (SaveData.settings.downScroll ? 0.11 : 0.89)) + 20, FlxG.width, "", 20);
-		scoreTxt.setFormat(Paths.font(Localization.getFont()), 35, FlxColor.WHITE, FlxTextAlign.CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		scoreTxt.setFormat(Paths.font('vcr.ttf'), 35, FlxColor.WHITE, FlxTextAlign.CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		scoreTxt.screenCenter(X);
 
 		judgementCounter = new FlxText(20, 0, 0, "", 20);
@@ -195,18 +197,27 @@ class PlayState extends ExtendableState {
 		for (folder in foldersToCheck) {
 			if (FileSystem.exists(folder) && FileSystem.isDirectory(folder)) {
 				for (file in FileSystem.readDirectory(folder)) {
-					if (Paths.validScriptType(file))
+					if (Paths.validScriptType(file)) {
 						scriptArray.push(new HScript(folder + file));
-					if (file.endsWith('.lua'))
+					}
+					if (file.endsWith('.lua')) {
 						luaArray.push(new LuaScript(folder + file));
+					}
 				}
 			}
 		}
 
-		for (script in scriptArray)
-			script?.setVariable('addScript', (path:String) -> scriptArray.push(new HScript(Paths.script(path))));
-		for (lua in luaArray)
-			lua?.setCallback('addScript', (path:String) -> luaArray.push(new LuaScript(Paths.lua(path))));
+		for (script in scriptArray) {
+			script?.setVariable('addScript', function(path:String) {
+				scriptArray.push(new HScript(Paths.script(path)));
+			});
+		}
+
+		for (lua in luaArray) {
+			lua?.setCallback('addScript', function(path:String) {
+				luaArray.push(new LuaScript(Paths.lua(path)));
+			});
+		}
 
 		startingSong = true;
 		startCountdown();
@@ -417,8 +428,15 @@ class PlayState extends ExtendableState {
 			if (FlxG.sound.music != null)
 				FlxG.sound.music.resume();
 
-			FlxTimer.globalManager.forEach((tmr:FlxTimer) -> if (!tmr.finished) tmr.active = true);
-			FlxTween.globalManager.forEach((twn:FlxTween) -> if (!twn.finished) twn.active = true);
+			FlxTimer.globalManager.forEach(function(tmr:FlxTimer) {
+				if (!tmr.finished)
+					tmr.active = true;
+			});
+
+			FlxTween.globalManager.forEach(function(twn:FlxTween) {
+				if (!twn.finished)
+					twn.active = true;
+			});
 
 			#if FUTURE_DISCORD_RPC
 			DiscordClient.changePresence(detailsText, song.song, 'icon', true, FlxG.sound.music.length - Conductor.songPosition);
@@ -441,6 +459,7 @@ class PlayState extends ExtendableState {
 			else
 				DiscordClient.changePresence(detailsText, song.song, 'icon');
 		}
+
 		callOnScripts('onFocus', []);
 		callOnLuas('onFocus', []);
 		super.onFocus();
@@ -449,6 +468,7 @@ class PlayState extends ExtendableState {
 	override function onFocusLost():Void {
 		if (health > 0 && !paused)
 			DiscordClient.changePresence('Paused - ' + detailsText, song.song, 'icon');
+
 		callOnScripts('onFocusLost', []);
 		callOnLuas('onFocusLost', []);
 		super.onFocusLost();
@@ -462,8 +482,15 @@ class PlayState extends ExtendableState {
 			persistentUpdate = false;
 			persistentDraw = true;
 
-			FlxTimer.globalManager.forEach((tmr:FlxTimer) -> if (!tmr.finished) tmr.active = false);
-			FlxTween.globalManager.forEach((twn:FlxTween) -> if (!twn.finished) twn.active = false);
+			FlxTimer.globalManager.forEach(function(tmr:FlxTimer) {
+				if (!tmr.finished)
+					tmr.active = false;
+			});
+
+			FlxTween.globalManager.forEach(function(twn:FlxTween) {
+				if (!twn.finished)
+					twn.active = false;
+			});
 
 			openSubState(new PauseSubState());
 		}
@@ -502,12 +529,24 @@ class PlayState extends ExtendableState {
 			}
 		}
 
-		if (Input.justPressed('left'))
-			konami = (konami == 4 || konami == 6) ? konami += 1 : 0;
-		if (Input.justPressed('down'))
-			konami = (konami == 2 || konami == 3) ? konami += 1 : 0;
-		if (Input.justPressed('up'))
-			konami = (konami == 0 || konami == 1) ? konami + 1 : 0;
+		if (Input.justPressed('left')) {
+			if (konami == 4 || konami == 6)
+				konami++;
+			else
+				konami = 0;
+		}
+		if (Input.justPressed('down')) {
+			if (konami == 2 || konami == 3)
+				konami++;
+			else
+				konami = 0;
+		}
+		if (Input.justPressed('up')) {
+			if (konami == 0 || konami == 1)
+				konami++;
+			else
+				konami = 0;
+		}
 		if (Input.justPressed('right')) {
 			if (konami == 5 || konami == 7) {
 				konami++;
@@ -613,7 +652,7 @@ class PlayState extends ExtendableState {
 		var scoreToAdd:Int = 0;
 
 		switch (rating) {
-			case "perfect", "perfect-golden":
+			case "perfect" | "perfect-golden":
 				scoreToAdd = ratingScores[0];
 				perfects++;
 			case "nice":
@@ -718,6 +757,7 @@ class PlayState extends ExtendableState {
 		];
 
 		var rankArray:Array<String> = ["P", "S", "A", "B", "C", "D", "F"];
+
 		for (i in 0...rankConditions.length) {
 			if (rankConditions[i]) {
 				rank = rankArray[i];
@@ -725,7 +765,10 @@ class PlayState extends ExtendableState {
 			}
 		}
 
-		return (accuracy <= 0 || SaveData.settings.botPlay) ? "?" : rank;
+		if (accuracy <= 0 || SaveData.settings.botPlay)
+			rank = "?";
+
+		return rank;
 	}
 
 	function endSong() {

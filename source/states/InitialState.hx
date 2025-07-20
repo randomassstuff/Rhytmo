@@ -9,13 +9,13 @@ class InitialState extends ExtendableState {
 	override function create() {
 		super.create();
 
+		Localization.loadLanguages();
+		Localization.switchLanguage(SaveData.settings.lang);
+
 		ModHandler.reload();
 		SaveData.init();
 		Achievements.load();
 		HighScore.load();
-
-		Localization.loadLanguages();
-		Localization.switchLanguage(SaveData.settings.lang);
 
 		trace('current platform: ${PlatformUtil.getPlatform()}');
 

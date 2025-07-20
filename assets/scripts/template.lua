@@ -1,49 +1,43 @@
--- Called when the script is created.
 function create()
+	-- Called when the script is created.
 end
 
--- Called when the countdown starts in PlayState.
 function startCountdown()
+	-- Called when the countdown starts in PlayState.
 end
 
--- Called every frame.
--- @param elapsed The elapsed time between frames.
 function update(elapsed)
+	-- Called every frame.
 end
 
--- Called every beat hit in PlayState.
--- @param curBeat The current song beat.
 function beatHit(curBeat)
+	-- Called every beat hit in PlayState.
 end
 
--- Called every step hit in PlayState.
--- @param curStep The current song step.
 function stepHit(curStep)
+	-- Called every step hit in PlayState.
 end
 
--- Called when the game is paused.
 function pause()
+	-- Called when the game is paused.
 end
 
--- Called when the game is resumed.
 function resume()
+	-- Called when the game is resumed.
 end
 
--- Called when a note is hit.
--- @param note The note that was hit.
--- @param rating The rating given.
 function noteHit(note, rating)
+	-- Called when a note is hit.
 end
 
--- Called when a note is missed.
--- @param direction The note direction.
 function noteMiss(direction)
+	-- Called when a note is missed.
 end
 
--- Called when the song ends.
 function endSong()
+	-- Called when the song ends.
 end
 
--- Called when the script is destroyed.
 function destroy()
+	-- Called when the script is destroyed.
 end

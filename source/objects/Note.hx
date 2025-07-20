@@ -85,16 +85,39 @@ class Note extends GameSprite {
 	}
 
 	public function calculateCanBeHit() {
-		if (type == "sustain") {
-			canBeHit = shouldHit ? (strum > Conductor.songPosition - (Conductor.safeZoneOffset * 1.5)
-				&& strum < Conductor.songPosition + (Conductor.safeZoneOffset * 0.5)) : (strum > Conductor.songPosition - Conductor.safeZoneOffset * 0.3
-					&& strum < Conductor.songPosition + Conductor.safeZoneOffset * 0.2);
-		} else {
-			canBeHit = shouldHit ? (strum > Conductor.songPosition - Conductor.safeZoneOffset
-				&& strum < Conductor.songPosition + Conductor.safeZoneOffset) : (strum > Conductor.songPosition - Conductor.safeZoneOffset * 0.3
-					&& strum < Conductor.songPosition + Conductor.safeZoneOffset * 0.2);
+		if (this != null) {
+			if (type == "sustain") {
+				if (shouldHit) {
+					if (strum > Conductor.songPosition - (Conductor.safeZoneOffset * 1.5)
+						&& strum < Conductor.songPosition + (Conductor.safeZoneOffset * 0.5))
+						canBeHit = true;
+					else
+						canBeHit = false;
+				} else {
+					if (strum > Conductor.songPosition - Conductor.safeZoneOffset * 0.3
+						&& strum < Conductor.songPosition + Conductor.safeZoneOffset * 0.2)
+						canBeHit = true;
+					else
+						canBeHit = false;
+				}
+			} else {
+				if (shouldHit) {
+					if (strum > Conductor.songPosition - Conductor.safeZoneOffset
+						&& strum < Conductor.songPosition + Conductor.safeZoneOffset)
+						canBeHit = true;
+					else
+						canBeHit = false;
+				} else {
+					if (strum > Conductor.songPosition - Conductor.safeZoneOffset * 0.3
+						&& strum < Conductor.songPosition + Conductor.safeZoneOffset * 0.2)
+						canBeHit = true;
+					else
+						canBeHit = false;
+				}
+			}
+
+			if (strum < Conductor.songPosition - Conductor.safeZoneOffset && !wasGoodHit)
+				tooLate = true;
 		}
-		if (strum < Conductor.songPosition - Conductor.safeZoneOffset && !wasGoodHit)
-			tooLate = true;
 	}
 }

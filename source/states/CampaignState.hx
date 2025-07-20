@@ -41,7 +41,7 @@ class CampaignState extends ExtendableState {
 		add(grid);
 
 		text = new FlxText(0, 0, FlxG.width, "Enter the songs you want to play.\n(Be sure to separate them with a comma.)", 32);
-		text.setFormat(Paths.font(Localization.getFont()), 40, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		text.setFormat(Paths.font('vcr.ttf'), 40, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		text.scrollFactor.set();
 		text.screenCenter(X);
 		add(text);

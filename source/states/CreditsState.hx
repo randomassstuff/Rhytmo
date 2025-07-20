@@ -135,12 +135,18 @@ class CreditsState extends ExtendableState {
 		super.update(elapsed);
 
 		topBar.y = FlxMath.lerp(topBar.y, 0, elapsed * 6);
-		topMarker.y = centerMarker.y = rightMarker.y = topBar.y + 5;
+
+		topMarker.y = topBar.y + 5;
+		centerMarker.y = topBar.y + 5;
+		rightMarker.y = topBar.y + 5;
 
 		var controlArray:Array<Bool> = [
-			FlxG.keys.justPressed.UP, FlxG.keys.justPressed.DOWN,
-			Input.justPressed('up'), Input.justPressed('down'),
-			FlxG.mouse.wheel == 1, FlxG.mouse.wheel == -1
+			FlxG.keys.justPressed.UP,
+			FlxG.keys.justPressed.DOWN,
+			Input.justPressed('up'),
+			Input.justPressed('down'),
+			FlxG.mouse.wheel == 1,
+			FlxG.mouse.wheel == -1
 		];
 		if (controlArray.contains(true)) {
 			for (i in 0...controlArray.length) {
@@ -190,11 +196,15 @@ class CreditsState extends ExtendableState {
 		if (credData.tweenColor) {
 			var color:FlxColor = FlxColor.fromRGB(credData.users[curSelected].colors[0], credData.users[curSelected].colors[1],
 				credData.users[curSelected].colors[2]);
+
 			if (menuColorTween != null)
 				menuColorTween.cancel();
+
 			if (color != menuBG.color) {
 				menuColorTween = FlxTween.color(menuBG, 0.35, menuBG.color, color, {
-					onComplete: (tween:FlxTween) -> menuColorTween = null
+					onComplete: (tween:FlxTween) -> {
+						menuColorTween = null;
+					}
 				});
 			}
 		}

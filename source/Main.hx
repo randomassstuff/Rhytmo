@@ -7,6 +7,9 @@ import haxe.io.Path;
 import sys.io.Process;
 #end
 import debug.FPS;
+#if (linux || mac)
+import lime.graphics.Image;
+#end
 
 #if (linux && !debug)
 @:cppInclude('./external/gamemode_client.h')
@@ -82,7 +85,7 @@ class Main extends openfl.display.Sprite {
 		addChild(fpsDisplay);
 
 		#if (linux || mac)
-		Lib.current.stage.window.setIcon(lime.graphics.Image.fromFile("icon.png"));
+		Lib.current.stage.window.setIcon(Image.fromFile("icon.png"));
 		#end
 
 		#if FUTURE_DISCORD_RPC

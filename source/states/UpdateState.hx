@@ -15,7 +15,7 @@ class UpdateState extends ExtendableState {
 			+ '\nPress ENTER to update the game. Otherwise, press ESCAPE to proceed anyways.\n
 			Thanks for playing!', 32);
 		text.setFormat(Paths.font('vcr.ttf'), 40, FlxColor.WHITE, FlxTextAlign.CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		text.screenCenter();
+		text.screenCenter(XY);
 		add(text);
 	}
 
@@ -39,16 +39,13 @@ class UpdateState extends ExtendableState {
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		if (Input.justPressed('accept')) {
-			FlxG.sound.play(Paths.sound('select'));
-			#if desktop
-			AutoUpdater.downloadUpdate();
-			#else
-			Utilities.openUrlPlease("https://github.com/Joalor64GH/Rhythmo-SC/releases/latest");
-			#end
-		} else if (Input.justPressed('exit')) {
-			FlxG.sound.play(Paths.sound('cancel'));
+		if (Input.justPressed('accept') || Input.justPressed('exit')) {
 			ExtendableState.switchState(new TitleState());
+			if (!Input.justPressed('exit')) {
+				FlxG.sound.play(Paths.sound('select'));
+				AutoUpdater.downloadUpdate();
+			} else
+				FlxG.sound.play(Paths.sound('cancel'));
 		}
 	}
 }

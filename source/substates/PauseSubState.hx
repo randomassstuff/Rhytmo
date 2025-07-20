@@ -17,7 +17,7 @@ class PauseSubState extends ExtendableSubState {
 		add(bg);
 
 		var text:FlxText = new FlxText(0, 0, 0, Localization.get("pauseTxt"), 12);
-		text.setFormat(Paths.font(Localization.getFont()), 64, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		text.setFormat(Paths.font('vcr.ttf'), 64, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		text.screenCenter(X);
 		add(text);
 
@@ -26,7 +26,7 @@ class PauseSubState extends ExtendableSubState {
 
 		for (i in 0...pauseOptions.length) {
 			var text:FlxText = new FlxText(0, 245 + (i * 65), 0, Localization.get(pauseOptions[i]), 32);
-			text.setFormat(Paths.font(Localization.getFont()), 80, FlxColor.WHITE, FlxTextAlign.CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+			text.setFormat(Paths.font('vcr.ttf'), 80, FlxColor.WHITE, FlxTextAlign.CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			text.screenCenter(X);
 			text.ID = i;
 			pauseGrp.add(text);
@@ -52,26 +52,33 @@ class PauseSubState extends ExtendableSubState {
 
 		if (isTweening)
 			timer = 0;
-		else if ((timer += elapsed) >= 3)
-			changeText();
+		else {
+			timer += elapsed;
+			if (timer >= 3)
+				changeText();
+		}
 
 		if (Input.justPressed('up') || Input.justPressed('down'))
 			changeSelection(Input.justPressed('up') ? -1 : 1);
 
 		if (Input.justPressed('accept')) {
 			switch (curSelected) {
-				case 0: close();
-				case 1: FlxG.resetState();
+				case 0:
+					close();
+				case 1:
+					FlxG.resetState();
 				case 2:
 					ExtendableState.switchState(new options.OptionsState(true));
 					FlxG.sound.playMusic(Paths.music('Basically_Professionally_Musically'), 0.75);
 				case 3:
-					if (PlayState.campaignMode) PlayState.campaignMode = false;
+					if (PlayState.campaignMode)
+						PlayState.campaignMode = false;
 					ExtendableState.switchState(new SongSelectState());
 					FlxG.sound.playMusic(Paths.music('Basically_Professionally_Musically'), 0.75);
 					PlayState.chartingMode = false;
 				case 4:
-					if (PlayState.campaignMode) PlayState.campaignMode = false;
+					if (PlayState.campaignMode)
+						PlayState.campaignMode = false;
 					ExtendableState.switchState(new MenuState());
 					FlxG.sound.playMusic(Paths.music('Basically_Professionally_Musically'), 0.75);
 					PlayState.chartingMode = false;
@@ -83,31 +90,36 @@ class PauseSubState extends ExtendableSubState {
 		if (playSound)
 			FlxG.sound.play(Paths.sound('scroll'));
 		curSelected = FlxMath.wrap(curSelected + change, 0, pauseOptions.length - 1);
-		pauseGrp.forEach((txt:FlxText) -> txt.color = (txt.ID == curSelected) ? FlxColor.LIME : FlxColor.WHITE);
+		pauseGrp.forEach(function(txt:FlxText) {
+			txt.color = (txt.ID == curSelected) ? FlxColor.LIME : FlxColor.WHITE;
+		});
 	}
 
 	function changeText() {
+		var selectedText:String = '';
 		var textArray:Array<String> = Paths.getTextArray(Paths.txt('data/tipText'));
-		var idx:Int = FlxG.random.int(0, textArray.length - 1);
-		var selectedText:String = textArray[idx].replace('--', '\n');
-		if (selectedText == lastString && textArray.length > 1) {
-			for (i in 0...textArray.length) {
-				var tryIdx = FlxG.random.int(0, textArray.length - 1);
-				selectedText = textArray[tryIdx].replace('--', '\n');
-				if (selectedText != lastString) break;
-			}
-		}
+
 		tipTxt.alpha = 1;
 		isTweening = true;
+		selectedText = textArray[FlxG.random.int(0, (textArray.length - 1))].replace('--', '\n');
 		FlxTween.tween(tipTxt, {alpha: 0}, 1, {
 			ease: FlxEase.linear,
 			onComplete: (twn:FlxTween) -> {
-				tipTxt.text = selectedText;
-				lastString = selectedText;
+				if (selectedText != lastString) {
+					tipTxt.text = selectedText;
+					lastString = selectedText;
+				} else {
+					selectedText = textArray[FlxG.random.int(0, (textArray.length - 1))].replace('--', '\n');
+					tipTxt.text = selectedText;
+				}
+
 				tipTxt.alpha = 0;
+
 				FlxTween.tween(tipTxt, {alpha: 1}, 1, {
 					ease: FlxEase.linear,
-					onComplete: (twn:FlxTween) -> isTweening = false
+					onComplete: (twn:FlxTween) -> {
+						isTweening = false;
+					}
 				});
 			}
 		});

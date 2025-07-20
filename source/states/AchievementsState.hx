@@ -106,12 +106,17 @@ class AchievementsState extends ExtendableState {
 
 	function initAchievementData() {
 		for (i in 0...Achievements.achievements.length) {
-			var data:AchievementData = cast TJSON.parse(File.getContent(Paths.json('achievements/' + Achievements.achievements[i])));
-			achievementArray.push(data);
+			var coolAchieve:AchievementData = cast TJSON.parse(File.getContent(Paths.json('achievements/' + Achievements.achievements[i])));
+			achievementArray.push(coolAchieve);
 
-			var stringToUse:String = data.name;
-			var unlocked:Bool = Achievements.achievementsMap.exists(Achievements.achievements[i]);
-			if (!unlocked) stringToUse = "???";
+			var stringToUse:String = coolAchieve.name;
+			var unlocked:Bool = true;
+
+			if (!Achievements.achievementsMap.exists(Achievements.achievements[i])) {
+				stringToUse = "???";
+				unlocked = false;
+			}
+
 			isUnlocked.push(unlocked);
 
 			var text:FlxText = new FlxText(20, 60 + (i * 80), stringToUse, 32);
@@ -137,6 +142,7 @@ class AchievementsState extends ExtendableState {
 		});
 
 		var formattedName:String = StringTools.replace(achievementArray[curSelected].name.toLowerCase(), " ", "_");
+
 		stat = Achievements.getStats(formattedName);
 		if (achievementArray[curSelected].desc != null || achievementArray[curSelected].hint != null) {
 			description.text = Achievements.isUnlocked(formattedName) ? achievementArray[curSelected].desc
@@ -155,6 +161,7 @@ class AchievementsState extends ExtendableState {
 	function regenList() {
 		achievementArray = [];
 		isUnlocked = [];
+
 		achievementGrp.forEach(ach -> {
 			achievementGrp.remove(ach, true);
 			ach.destroy();
@@ -163,6 +170,7 @@ class AchievementsState extends ExtendableState {
 			iconGrp.remove(icon, true);
 			icon.destroy();
 		});
+
 		achievementGrp.clear();
 		iconGrp.clear();
 

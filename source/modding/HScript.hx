@@ -5,11 +5,15 @@ import hscript.*;
 class HScript extends FlxBasic {
 	public var locals(get, set):Map<String, {r:Dynamic}>;
 
-	function get_locals()
-		return @:privateAccess interp.locals;
+	function get_locals():Map<String, {r:Dynamic}> {
+		@:privateAccess
+		return interp.locals;
+	}
 
-	function set_locals(local)
-		return @:privateAccess interp.locals = local;
+	function set_locals(local:Map<String, {r:Dynamic}>) {
+		@:privateAccess
+		return interp.locals = local;
+	}
 
 	public static var Function_Stop:Dynamic = 1;
 	public static var Function_Continue:Dynamic = 0;
@@ -23,56 +27,103 @@ class HScript extends FlxBasic {
 		parser.allowJSON = parser.allowTypes = parser.allowMetadata = true;
 		parser.preprocesorValues = macros.Macros.getDefines();
 
-		// Default Variables & Functions
+		// Default Variables
 		setVariable('this', this);
+
 		setVariable('Function_Stop', Function_Stop);
 		setVariable('Function_Continue', Function_Continue);
+
 		setVariable('platform', PlatformUtil.getPlatform());
 		setVariable('version', Lib.application.meta.get('version'));
-		setVariable('import', importFunc);
-		setVariable('trace', (v:Dynamic) -> trace(v));
-		setVariable('importScript', importScriptFunc);
-		setVariable('stopScript', () -> this.destroy());
+
+		// Default Functions
+		setVariable('import', function(daClass:String, ?asDa:String) {
+			final splitClassName:Array<String> = [for (e in daClass.split('.')) e.trim()];
+			final className:String = splitClassName.join('.');
+			final daClass:Class<Dynamic> = Type.resolveClass(className);
+			final daEnum:Enum<Dynamic> = Type.resolveEnum(className);
+
+			if (daClass == null && daEnum == null)
+				Lib.application.window.alert('Class / Enum at $className does not exist.', 'HScript Error!');
+			else {
+				if (daEnum != null) {
+					var daEnumField = {};
+					for (daConstructor in daEnum.getConstructors())
+						Reflect.setField(daEnumField, daConstructor, daEnum.createByName(daConstructor));
+
+					if (asDa != null && asDa != '')
+						setVariable(asDa, daEnumField);
+					else
+						setVariable(splitClassName[splitClassName.length - 1], daEnumField);
+				} else {
+					if (asDa != null && asDa != '')
+						setVariable(asDa, daClass);
+					else
+						setVariable(splitClassName[splitClassName.length - 1], daClass);
+				}
+			}
+		});
+
+		setVariable('trace', function(value:Dynamic) {
+			trace(value);
+		});
+
+		setVariable('importScript', function(source:String) {
+			var name:String = StringTools.replace(source, '.', '/');
+			var script:HScript = new HScript(Paths.script(name), false);
+			script.execute(Paths.script(name), false);
+			return script.getAll();
+		});
+
+		setVariable('stopScript', function() {
+			this.destroy();
+		});
 
 		// Haxe
-		var haxeClasses:Array<Dynamic> = [
-			['Array', Array],
-			['Bool', Bool],
-			['Date', Date],
-			['DateTools', DateTools],
-			['Dynamic', Dynamic],
-			['EReg', EReg],
-			#if sys ['File', File], ['FileSystem', FileSystem], #end
-			['Float', Float],
-			['Int', Int],
-			['Json', Json],
-			['Lambda', Lambda],
-			['Math', Math],
-			['Path', Path],
-			['Reflect', Reflect],
-			['Std', Std],
-			['StringBuf', StringBuf],
-			['String', String],
-			['StringTools', StringTools],
-			#if sys ['Sys', Sys], #end
-			['TJSON', TJSON],
-			['Type', Type],
-			['Xml', Xml]
-		];
-		for (pair in haxeClasses)
-			setVariable(pair[0], pair[1]);
-		setVariable('createThread', createThreadFunc);
+		setVariable('Array', Array);
+		setVariable('Bool', Bool);
+		setVariable('Date', Date);
+		setVariable('DateTools', DateTools);
+		setVariable('Dynamic', Dynamic);
+		setVariable('EReg', EReg);
+		#if sys
+		setVariable('File', File);
+		setVariable('FileSystem', FileSystem);
+		#end
+		setVariable('Float', Float);
+		setVariable('Int', Int);
+		setVariable('Json', Json);
+		setVariable('Lambda', Lambda);
+		setVariable('Math', Math);
+		setVariable('Path', Path);
+		setVariable('Reflect', Reflect);
+		setVariable('Std', Std);
+		setVariable('StringBuf', StringBuf);
+		setVariable('String', String);
+		setVariable('StringTools', StringTools);
+		#if sys
+		setVariable('Sys', Sys);
+		#end
+		setVariable('TJSON', TJSON);
+		setVariable('Type', Type);
+		setVariable('Xml', Xml);
+
+		setVariable('createThread', function(func:Void->Void) {
+			#if sys
+			sys.thread.Thread.create(() -> {
+				func();
+			});
+			#else
+			func();
+			#end
+		});
 
 		// OpenFL
-		var openflClasses:Array<Dynamic> = [
-			['Assets', Assets],
-			['BitmapData', BitmapData],
-			['Lib', Lib],
-			['ShaderFilter', ShaderFilter],
-			['Sound', Sound]
-		];
-		for (pair in openflClasses)
-			setVariable(pair[0], pair[1]);
+		setVariable('Assets', Assets);
+		setVariable('BitmapData', BitmapData);
+		setVariable('Lib', Lib);
+		setVariable('ShaderFilter', ShaderFilter);
+		setVariable('Sound', Sound);
 
 		// Flixel
 		setVariable('FlxAxes', getFlxAxes());
@@ -97,8 +148,12 @@ class HScript extends FlxBasic {
 		setVariable('FlxTimer', FlxTimer);
 		setVariable('FlxTween', FlxTween);
 		setVariable('FlxTypedGroup', FlxTypedGroup);
-		setVariable('createTypedGroup', (?variable) -> return variable = new FlxTypedGroup<Dynamic>());
-		setVariable('createSpriteGroup', (?variable) -> return variable = new FlxSpriteGroup());
+		setVariable('createTypedGroup', function(?variable) {
+			return variable = new FlxTypedGroup<Dynamic>();
+		});
+		setVariable('createSpriteGroup', function(?variable) {
+			return variable = new FlxSpriteGroup();
+		});
 
 		// State Stuff
 		setVariable('add', FlxG.state.add);
@@ -108,32 +163,32 @@ class HScript extends FlxBasic {
 		setVariable('state', FlxG.state);
 
 		// Rhythmo
-		var gameClasses:Array<Dynamic> = [
-			['Achievements', Achievements],
-			['Bar', Bar],
-			['Conductor', Conductor],
-			#if FUTURE_DISCORD_RPC ['DiscordClient', DiscordClient], #end
-			['ExtendableState', ExtendableState],
-			['ExtendableSubState', ExtendableSubState],
-			['GameSprite', GameSprite],
-			['HighScore', HighScore],
-			['Input', Input],
-			['Localization', Localization],
-			['LuaScript', LuaScript],
-			['Main', Main],
-			#if FUTURE_POLYMOD ['ModHandler', ModHandler], #end
-			['Note', Note],
-			['Paths', Paths],
-			['PlayState', PlayState],
-			['Rating', Rating],
-			['SaveData', SaveData],
-			['ScriptedState', ScriptedState],
-			['ScriptedSubState', ScriptedSubState],
-			['Song', Song],
-			['Utilities', Utilities]
-		];
-		for (pair in gameClasses)
-			setVariable(pair[0], pair[1]);
+		setVariable('Achievements', Achievements);
+		setVariable('Bar', Bar);
+		setVariable('Conductor', Conductor);
+		#if FUTURE_DISCORD_RPC
+		setVariable('DiscordClient', DiscordClient);
+		#end
+		setVariable('ExtendableState', ExtendableState);
+		setVariable('ExtendableSubState', ExtendableSubState);
+		setVariable('GameSprite', GameSprite);
+		setVariable('HighScore', HighScore);
+		setVariable('Input', Input);
+		setVariable('Localization', Localization);
+		setVariable('LuaScript', LuaScript);
+		setVariable('Main', Main);
+		#if FUTURE_POLYMOD
+		setVariable('ModHandler', ModHandler);
+		#end
+		setVariable('Note', Note);
+		setVariable('Paths', Paths);
+		setVariable('PlayState', PlayState);
+		setVariable('Rating', Rating);
+		setVariable('SaveData', SaveData);
+		setVariable('ScriptedState', ScriptedState);
+		setVariable('ScriptedSubState', ScriptedSubState);
+		setVariable('Song', Song);
+		setVariable('Utilities', Utilities);
 
 		setVariable('game', PlayState.instance);
 
@@ -141,52 +196,27 @@ class HScript extends FlxBasic {
 			this.execute(file);
 	}
 
-	function importFunc(daClass:String, ?asDa:String) {
-		final splitClassName = [for (e in daClass.split('.')) e.trim()];
-		final className = splitClassName.join('.');
-		final daClassObj:Class<Dynamic> = Type.resolveClass(className);
-		final daEnum:Enum<Dynamic> = Type.resolveEnum(className);
-
-		if (daClassObj == null && daEnum == null)
-			Lib.application.window.alert('Class / Enum at $className does not exist.', 'HScript Error!');
-		else if (daEnum != null) {
-			var daEnumField = {};
-			for (daConstructor in daEnum.getConstructors())
-				Reflect.setField(daEnumField, daConstructor, daEnum.createByName(daConstructor));
-			setVariable(asDa != null && asDa != '' ? asDa : splitClassName[splitClassName.length - 1], daEnumField);
-		} else
-			setVariable(asDa != null && asDa != '' ? asDa : splitClassName[splitClassName.length - 1], daClassObj);
-	}
-
-	function importScriptFunc(source:String) {
-		var name = StringTools.replace(source, '.', '/');
-		var script = new HScript(Paths.script(name), false);
-		script.execute(Paths.script(name), false);
-		return script.getAll();
-	}
-
-	function createThreadFunc(func:Void->Void) {
-		#if sys sys.thread.Thread.create(func); #else func(); #end
-	}
-
 	public function execute(file:String, ?executeCreate:Bool = true):Void {
 		try {
 			interp.execute(parser.parseString(File.getContent(file)));
 		} catch (e:Dynamic)
 			Lib.application.window.alert(Std.string(e), 'HScript Error!');
+
 		trace('Script Loaded Succesfully: $file');
+
 		if (executeCreate)
 			executeFunc('create', []);
 	}
 
 	public function executeStr(code:String):Dynamic {
 		try {
-			@:privateAccess parser.line = 1;
+			@:privateAccess
+			parser.line = 1;
 			return interp.execute(parser.parseString(code));
-		} catch (e:Dynamic) {
+		} catch (e:Dynamic)
 			Lib.application.window.alert(Std.string(e), 'HScript Error!');
-			return null;
-		}
+
+		return null;
 	}
 
 	public function setVariable(name:String, val:Dynamic):Void {
@@ -205,6 +235,7 @@ class HScript extends FlxBasic {
 				return interp?.variables.get(name);
 		} catch (e:Dynamic)
 			Lib.application.window.alert(Std.string(e), 'HScript Error!');
+
 		return null;
 	}
 
@@ -220,6 +251,7 @@ class HScript extends FlxBasic {
 			return interp?.variables.exists(name);
 		} catch (e:Dynamic)
 			Lib.application.window.alert(Std.string(e), 'HScript Error!');
+
 		return false;
 	}
 
@@ -230,20 +262,24 @@ class HScript extends FlxBasic {
 			} catch (e:Dynamic)
 				Lib.application.window.alert(Std.string(e), 'HScript Error!');
 		}
+
 		return null;
 	}
 
 	public function getAll():Dynamic {
 		var balls:Dynamic = {};
+
 		for (i in locals.keys())
 			Reflect.setField(balls, i, getVariable(i));
 		for (i in interp.variables.keys())
 			Reflect.setField(balls, i, getVariable(i));
+
 		return balls;
 	}
 
-	public function getFlxColor()
+	public function getFlxColor() {
 		return {
+			// colors
 			"BLACK": FlxColor.BLACK,
 			"BLUE": FlxColor.BLUE,
 			"BROWN": FlxColor.BROWN,
@@ -259,6 +295,8 @@ class HScript extends FlxBasic {
 			"TRANSPARENT": FlxColor.TRANSPARENT,
 			"WHITE": FlxColor.WHITE,
 			"YELLOW": FlxColor.YELLOW,
+
+			// functions
 			"add": FlxColor.add,
 			"fromCMYK": FlxColor.fromCMYK,
 			"fromHSB": FlxColor.fromHSB,
@@ -268,10 +306,13 @@ class HScript extends FlxBasic {
 			"fromRGBFloat": FlxColor.fromRGBFloat,
 			"fromString": FlxColor.fromString,
 			"interpolate": FlxColor.interpolate,
-			"to24Bit": function(color:Int) return color & 0xffffff
+			"to24Bit": function(color:Int) {
+				return color & 0xffffff;
+			}
 		};
+	}
 
-	public static function getFlxKey()
+	public static function getFlxKey() {
 		return {
 			'ANY': -2,
 			'NONE': -1,
@@ -368,13 +409,17 @@ class HScript extends FlxBasic {
 			'NUMPADPLUS': 107,
 			'NUMPADPERIOD': 110,
 			'NUMPADMULTIPLY': 106,
+
 			'fromStringMap': FlxKey.fromStringMap,
 			'toStringMap': FlxKey.toStringMap,
 			'fromString': FlxKey.fromString,
-			'toString': function(key:Int) return FlxKey.toStringMap.get(key)
+			'toString': function(key:Int) {
+				return FlxKey.toStringMap.get(key);
+			}
 		};
+	}
 
-	public function getFlxCameraFollowStyle()
+	public function getFlxCameraFollowStyle() {
 		return {
 			"LOCKON": FlxCamera.FlxCameraFollowStyle.LOCKON,
 			"PLATFORMER": FlxCamera.FlxCameraFollowStyle.PLATFORMER,
@@ -383,29 +428,33 @@ class HScript extends FlxBasic {
 			"SCREEN_BY_SCREEN": FlxCamera.FlxCameraFollowStyle.SCREEN_BY_SCREEN,
 			"NO_DEAD_ZONE": FlxCamera.FlxCameraFollowStyle.NO_DEAD_ZONE
 		};
+	}
 
-	public function getFlxTextAlign()
+	public function getFlxTextAlign() {
 		return {
 			"LEFT": FlxTextAlign.LEFT,
 			"CENTER": FlxTextAlign.CENTER,
 			"RIGHT": FlxTextAlign.RIGHT,
 			"JUSTIFY": FlxTextAlign.JUSTIFY
 		};
+	}
 
-	public function getFlxTextBorderStyle()
+	public function getFlxTextBorderStyle() {
 		return {
 			"NONE": FlxTextBorderStyle.NONE,
 			"SHADOW": FlxTextBorderStyle.SHADOW,
 			"OUTLINE": FlxTextBorderStyle.OUTLINE,
 			"OUTLINE_FAST": FlxTextBorderStyle.OUTLINE_FAST
 		};
+	}
 
-	public function getFlxAxes()
+	public function getFlxAxes() {
 		return {
 			"X": FlxAxes.X,
 			"Y": FlxAxes.Y,
 			"XY": FlxAxes.XY
 		};
+	}
 
 	override function destroy() {
 		super.destroy();

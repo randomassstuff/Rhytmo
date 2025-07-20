@@ -7,14 +7,50 @@ class MenuState extends ExtendableState {
 	var camFollow:FlxObject;
 
 	var lockInputs:Bool = false;
-	var inSubMenu:Bool = false;
 
 	override function create() {
 		super.create();
 
 		lockInputs = false;
 
-		getDefaultSelections();
+		var path:String = Paths.txt('data/menuList');
+		if (Paths.exists(path)) {
+			try {
+				var menuArray:Array<String> = Paths.getTextArray(path);
+				for (i in 0...menuArray.length)
+					selections = menuArray;
+
+				trace('menu options are: ${menuArray.join(',')}');
+
+				#if !FUTURE_POLYMOD
+				if (selections.contains('mods'))
+					selections.remove('mods');
+				#end
+			} catch (e:Dynamic) {
+				trace("Error!\n" + e);
+				selections = [
+					'play',
+					#if FUTURE_POLYMOD
+					'mods',
+					#end
+					'awards',
+					'credits',
+					'options',
+					'exit'
+				];
+			}
+		} else {
+			selections = [
+				'play',
+				#if FUTURE_POLYMOD
+				'mods',
+				#end
+				'awards',
+				'credits',
+				'options',
+				'exit'
+			];
+		}
 
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
@@ -48,13 +84,22 @@ class MenuState extends ExtendableState {
 		grpSelection = new FlxTypedGroup<FlxSprite>();
 		add(grpSelection);
 
-		reloadMenu();
+		for (i in 0...selections.length) {
+			var menuItem:FlxSprite = new GameSprite(0, (i * 160) + (108 - (Math.max(selections.length, 4) - 4) * 80));
+			menuItem.loadGraphic(Paths.image('menu/mainmenu/' + selections[i]));
+			menuItem.scale.set(0.4, 0.4);
+			menuItem.screenCenter(X);
+			menuItem.ID = i;
+			grpSelection.add(menuItem);
+		}
 
 		final versii:FlxText = new FlxText(5, FlxG.height - 30, 0, 'Rhythmo v${Lib.application.meta.get('version')}'
 			#if debug + ' (${macros.Macros.getCommitId()})' #end, 12);
 		versii.setFormat(Paths.font('vcr.ttf'), 26, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		versii.scrollFactor.set();
 		add(versii);
+
+		changeSelection(0, false, false);
 
 		var curDate = Date.now();
 		if (curDate.getDay() == 5 && curDate.getHours() >= 18)
@@ -66,56 +111,6 @@ class MenuState extends ExtendableState {
 			});
 
 		FlxG.camera.follow(camFollow, null, 0.15);
-	}
-
-	function reloadMenu() {
-		grpSelection.clear();
-		for (i in 0...selections.length) {
-			var menuItem:FlxSprite = new GameSprite(0, (i * 160) + (108 - (Math.max(selections.length, 4) - 4) * 80));
-			menuItem.loadGraphic(Paths.image('menu/mainmenu/' + selections[i]));
-			menuItem.scale.set(0.4, 0.4);
-			menuItem.screenCenter(X);
-			menuItem.ID = i;
-			grpSelection.add(menuItem);
-		}
-		changeSelection(0, false, false);
-	}
-
-	function getDefaultSelections() {
-		var path:String = Paths.txt('data/menuList');
-		if (Paths.exists(path)) {
-			try {
-				selections = Paths.getTextArray(path);
-				trace('menu options are: ${selections.join(',')}');
-				#if !FUTURE_POLYMOD
-				if (selections.contains('mods'))
-					selections.remove('mods');
-				#end
-			} catch (e:Dynamic) {
-				trace("Error!\n" + e);
-				selections = [
-					'play',
-					#if FUTURE_POLYMOD
-					'mods',
-					#end
-					'awards',
-					'credits',
-					'options',
-					'exit'
-				];
-			}
-		} else {
-			selections = [
-				'play',
-				#if FUTURE_POLYMOD
-				'mods',
-				#end
-				'awards',
-				'credits',
-				'options',
-				'exit'
-			];
-		}
 	}
 
 	override function update(elapsed:Float) {
@@ -146,9 +141,8 @@ class MenuState extends ExtendableState {
 						switch (selections[curSelected]) {
 							case 'play':
 								lockInputs = false;
-								inSubMenu = true;
-								selections = ['campaign', 'freeplay'];
-								reloadMenu();
+								persistentUpdate = false;
+								openSubState(new ModeSelectSubstate());
 							#if FUTURE_POLYMOD
 							case 'mods':
 								if (ModHandler.trackedMods.length > 0) ExtendableState.switchState(new ModsState()); else {
@@ -162,10 +156,6 @@ class MenuState extends ExtendableState {
 								ExtendableState.switchState(new CreditsState());
 							case 'options':
 								ExtendableState.switchState(new options.OptionsState());
-							case 'campaign':
-								ExtendableState.switchState(new CampaignState());
-							case 'freeplay':
-								ExtendableState.switchState(new SongSelectState());
 							default:
 								ExtendableState.switchState(new ScriptedState(selections[curSelected], []));
 						}
@@ -174,13 +164,8 @@ class MenuState extends ExtendableState {
 			}
 
 			if (Input.justPressed('exit')) {
+				ExtendableState.switchState(new TitleState());
 				FlxG.sound.play(Paths.sound('cancel'));
-				if (inSubMenu) {
-					inSubMenu = false;
-					getDefaultSelections();
-					reloadMenu();
-				} else
-					ExtendableState.switchState(new TitleState());
 			}
 
 			#if debug
@@ -198,6 +183,87 @@ class MenuState extends ExtendableState {
 			spr.alpha = (spr.ID == curSelected) ? 1 : 0.6;
 			if (spr.ID == curSelected) {
 				camFollow.y = spr.getGraphicMidpoint().y;
+				if (doZoomThing) {
+					spr.scale.set(0.5, 0.5);
+					FlxTween.cancelTweensOf(spr.scale);
+					FlxTween.tween(spr.scale, {x: 0.4, y: 0.4}, 0.3, {ease: FlxEase.quadOut});
+				}
+			}
+		});
+	}
+}
+
+class ModeSelectSubstate extends ExtendableSubState {
+	var curSelected:Int = 0;
+	var grpSelection:FlxTypedGroup<FlxSprite>;
+	var selections:Array<String> = ["campaign", "freeplay"];
+	var lockInputs:Bool = false;
+
+	var bg:FlxSprite;
+
+	public function new() {
+		super();
+
+		bg = new FlxSprite().makeGraphic(1280, 720, FlxColor.BLACK);
+		bg.scrollFactor.set();
+		bg.screenCenter();
+		bg.alpha = 0;
+		add(bg);
+
+		grpSelection = new FlxTypedGroup<FlxSprite>();
+		add(grpSelection);
+
+		for (i in 0...selections.length) {
+			var menuItem:FlxSprite = new GameSprite(0, 65 + (i * 160));
+			menuItem.loadGraphic(Paths.image('menu/mainmenu/' + selections[i]));
+			menuItem.scrollFactor.set();
+			menuItem.scale.set(0.4, 0.4);
+			menuItem.screenCenter(X);
+			menuItem.alpha = 0;
+			menuItem.ID = i;
+			grpSelection.add(menuItem);
+		}
+
+		changeSelection(0, false, false);
+
+		FlxTween.tween(bg, {alpha: 0.65}, 0.75, {ease: FlxEase.quadOut});
+	}
+
+	override function update(elapsed:Float) {
+		super.update(elapsed);
+
+		if (!lockInputs) {
+			if (Input.justPressed('up') || Input.justPressed('down'))
+				changeSelection(Input.justPressed('up') ? -1 : 1);
+
+			if (Input.justPressed('accept')) {
+				lockInputs = true;
+				FlxG.sound.play(Paths.sound('select'));
+				if (SaveData.settings.flashing)
+					FlxG.camera.flash(FlxColor.WHITE, 1);
+				switch (selections[curSelected]) {
+					case 'campaign':
+						ExtendableState.switchState(new CampaignState());
+					case 'freeplay':
+						ExtendableState.switchState(new SongSelectState());
+				}
+			}
+
+			if (Input.justPressed('exit')) {
+				persistentUpdate = persistentDraw = true;
+				FlxG.sound.play(Paths.sound('cancel'));
+				close();
+			}
+		}
+	}
+
+	function changeSelection(change:Int = 0, ?doZoomThing:Bool = true, ?playSound:Bool = true) {
+		if (playSound)
+			FlxG.sound.play(Paths.sound('scroll'));
+		curSelected = FlxMath.wrap(curSelected + change, 0, selections.length - 1);
+		grpSelection.forEach((spr:FlxSprite) -> {
+			spr.alpha = (spr.ID == curSelected) ? 1 : 0.6;
+			if (spr.ID == curSelected) {
 				if (doZoomThing) {
 					spr.scale.set(0.5, 0.5);
 					FlxTween.cancelTweensOf(spr.scale);

@@ -60,7 +60,7 @@ class ControlsSubState extends ExtendableSubState {
 
 		for (i in 0...coolControls.length) {
 			var bindTxt:FlxText = new FlxText(20, 20 + (i * 80), 0, Localization.get(coolControls[i]), 32);
-			bindTxt.setFormat(Paths.font(Localization.getFont()), 60, FlxColor.WHITE, FlxTextAlign.LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+			bindTxt.setFormat(Paths.font('vcr.ttf'), 60, FlxColor.WHITE, FlxTextAlign.LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			bindTxt.ID = i;
 			ctrlGroup.add(bindTxt);
 		}
@@ -85,9 +85,9 @@ class ControlsSubState extends ExtendableSubState {
 		add(tempBG);
 
 		anyKeyTxt = new FlxText(0, 0, 0, "", 12);
-		anyKeyTxt.setFormat(Paths.font(Localization.getFont()), 30, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		anyKeyTxt.setFormat(Paths.font('vcr.ttf'), 30, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		anyKeyTxt.scrollFactor.set();
-		anyKeyTxt.screenCenter();
+		anyKeyTxt.screenCenter(XY);
 		add(anyKeyTxt);
 
 		changeSelection(0, false);

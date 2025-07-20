@@ -48,7 +48,7 @@ class NoteColorState extends ExtendableState {
 		}
 
 		daText = new FlxText(0, 280, FlxG.width, "", 12);
-		daText.setFormat(Paths.font(Localization.getFont()), 28, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		daText.setFormat(Paths.font('vcr.ttf'), 28, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		daText.screenCenter(X);
 		add(daText);
 
@@ -61,10 +61,11 @@ class NoteColorState extends ExtendableState {
 
 		if (Input.justPressed('reset')) {
 			curColorVals = NoteColors.defaultColors[curSelectedControl];
-			var n = strumline.members[curSelectedControl];
-			n.colorSwap.r = curColorVals[0];
-			n.colorSwap.g = curColorVals[1];
-			n.colorSwap.b = curColorVals[2];
+
+			strumline.members[curSelectedControl].colorSwap.r = curColorVals[0];
+			strumline.members[curSelectedControl].colorSwap.g = curColorVals[1];
+			strumline.members[curSelectedControl].colorSwap.b = curColorVals[2];
+
 			NoteColors.setNoteColor(curSelectedControl, curColorVals);
 		}
 
@@ -79,31 +80,48 @@ class NoteColorState extends ExtendableState {
 		}
 
 		if (!isSelectingSomething && (Input.justPressed('left') || Input.justPressed('right'))) {
-			curSelectedControl += Input.justPressed('left') ? -1 : 1;
+			if (Input.justPressed('left'))
+				curSelectedControl--;
+			if (Input.justPressed('right'))
+				curSelectedControl++;
+
 			if (curSelectedControl < 0)
 				curSelectedControl = 3;
 			if (curSelectedControl > 3)
 				curSelectedControl = 0;
+
 			updateColorVals();
 		}
 
 		if (isSelectingSomething && (Input.justPressed('up') || Input.justPressed('down'))) {
-			curColorVals[curSelectedValue] += Input.justPressed('up') ? 1 : -1;
-			curColorVals[curSelectedValue] = Std.int(FlxMath.bound(curColorVals[curSelectedValue], colorMins[curSelectedValue], colorMaxs[curSelectedValue]));
-			var n = strumline.members[curSelectedControl];
+			if (Input.justPressed('up'))
+				curColorVals[curSelectedValue]++;
+			if (Input.justPressed('down'))
+				curColorVals[curSelectedValue]--;
+
+			if (curColorVals[curSelectedValue] < colorMins[curSelectedValue])
+				curColorVals[curSelectedValue] = colorMins[curSelectedValue];
+			if (curColorVals[curSelectedValue] > colorMaxs[curSelectedValue])
+				curColorVals[curSelectedValue] = colorMaxs[curSelectedValue];
+
 			switch (curSelectedValue) {
 				case 0:
-					n.colorSwap.r = curColorVals[0];
+					strumline.members[curSelectedControl].colorSwap.r = curColorVals[curSelectedValue];
 				case 1:
-					n.colorSwap.g = curColorVals[1];
+					strumline.members[curSelectedControl].colorSwap.g = curColorVals[curSelectedValue];
 				case 2:
-					n.colorSwap.b = curColorVals[2];
+					strumline.members[curSelectedControl].colorSwap.b = curColorVals[curSelectedValue];
 			}
+
 			NoteColors.setNoteColor(curSelectedControl, curColorVals);
 		}
 
 		if (isSelectingSomething && (Input.justPressed('left') || Input.justPressed('right'))) {
-			curSelectedValue += Input.justPressed('left') ? -1 : 1;
+			if (Input.justPressed('left'))
+				curSelectedValue--;
+			if (Input.justPressed('right'))
+				curSelectedValue++;
+
 			if (curSelectedValue < 0)
 				curSelectedValue = 2;
 			if (curSelectedValue > 2)
@@ -122,27 +140,30 @@ class NoteColorState extends ExtendableState {
 	}
 
 	function updateText() {
-		var r:String = Std.string(curColorVals[0]);
-		var g:String = Std.string(curColorVals[1]);
-		var b:String = Std.string(curColorVals[2]);
+		var red:String = Std.string(curColorVals[0]);
+		var green:String = Std.string(curColorVals[1]);
+		var blue:String = Std.string(curColorVals[2]);
+
 		switch (curSelectedValue) {
 			case 0:
-				r = '>$r<';
+				red = '>$red<';
 			case 1:
-				g = '>$g<';
+				green = '>$green<';
 			case 2:
-				b = '>$b<';
+				blue = '>$blue<';
 		}
+
 		daText.text = Localization.get("noteColorGuide")
 			+ Localization.get("red")
-			+ r
+			+ red
 			+ Localization.get("green")
-			+ g
+			+ green
 			+ Localization.get("blue")
-			+ b;
+			+ blue;
 		daText.screenCenter(X);
 	}
 
-	inline function updateColorVals()
+	inline function updateColorVals() {
 		curColorVals = NoteColors.getNoteColor(curSelectedControl);
+	}
 }

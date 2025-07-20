@@ -1,6 +1,4 @@
 {
-    "customFont": "amiri",
-
     "pressEnter": "اضغط على ENTER للبدء!",
 
     "prefTxt": "الإعدادات",
@@ -61,9 +59,9 @@
     "langNotCompletelyAccurate": "(ترجمات اللغة قد لا تكون دقيقة بنسبة 100%.)",
 
     "noteColorGuide": "استخدم يسار/يمين لتغيير السهم المحدد أو اللون المحدد.\nاستخدم أعلى/أسفل لتغيير قيمة اللون المحدد.\nاستخدم ENTER لاختيار نوتة.\nاستخدم RESET لإعادة ضبط لون النوتة.\n",
-    "red": "\n :أحمر",
-    "green": "\n :أخضر",
-    "blue": "\n :أزرق",
+    "red": "\nأحمر: ",
+    "green": "\nأخضر: ",
+    "blue": "\nأزرق: ",
 
     "yes": "نعم",
     "no": "لا",
@@ -73,10 +71,10 @@
     "confirmReset": "R - تأكيد // ESCAPE - إلغاء",
     "confirmedReset": "تم حذف البيانات",
     
-    "diffTxt": " :الصعوبة",
-    "scoreTxt": " :النقاط",
-    "missTxt": " :الأخطاء",
-    "accTxt": " :الدقة",
+    "diffTxt": "الصعوبة: ",
+    "scoreTxt": "النقاط: ",
+    "missTxt": "الأخطاء: ",
+    "accTxt": "الدقة: ",
     "botplayTxt": "اللعب الآلي",
     "resultsTxt": "النتائج\n",
     
